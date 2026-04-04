@@ -20,8 +20,7 @@
             <ul class="navbar-nav">
                 {% set months = [
         (3, 'March'),
-        (4, 'April'),
-        (5, 'May'),
+        (4, 'April')
     ] %}
                 {% for month_num, month_name in months %}
                     {% set path = '/2026/' ~ '%02d'|format(month_num) %}
@@ -30,6 +29,9 @@
                            href="{{ path }}">{{ month_name }}</a>
                     </li>
                 {% endfor %}
+                                        <li class="nav-item">
+                                <a class="nav-link disabled" aria-disabled="true">May</a>
+                            </li>
             </ul>
             {#            <ul class="navbar-nav">#}
             {#                <li class="nav-item">#}
