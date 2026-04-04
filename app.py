@@ -23,14 +23,20 @@ def hello_world(year, month):
             data = [row for row in data if float(row[10]) >= (float(row[11]) * float(rr))]
             if entry_date:
                 data = [row for row in data if row[3] == entry_date]
-            # row[10]|float > (row[11]|float * 2)
-
-
     except FileNotFoundError:
         data = []
+
+    try:
+        with open(f'data/{period}.csv', 'r') as f:
+            reader = csv.reader(f)
+            total_setups = list(reader)
+    except FileNotFoundError:
+        total_setups = []
+
+
     return render_template('index.html', data=data,
                            period=period, header=column_header, trades=trades,
-                           rr=rr, entry_date=entry_date)
+                           rr=rr, entry_date=entry_date, total_setups=total_setups)
 
 
 if __name__ == '__main__':
