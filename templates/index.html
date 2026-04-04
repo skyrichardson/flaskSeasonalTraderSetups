@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-sm bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Seasonal Trader Setups</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/2026/03">March</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/2026/04">April</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" aria-disabled="true">May</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container">
+<form method="GET" action="">
+    <div class="row g-3 my-3">
+        <div class="col-sm">
+            <select class="form-select" name="trades" aria-label="Trades">
+                <option value="10" {% if request.args.get('trades', '10') == '10' %}selected{% endif %}>10 trades or more</option>
+                <option value="15" {% if request.args.get('trades') == '15' %}selected{% endif %}>15 trades or more</option>
+                <option value="20" {% if request.args.get('trades') == '20' %}selected{% endif %}>20 trades or more</option>
+                <option value="25" {% if request.args.get('trades') == '25' %}selected{% endif %}>25 trades or more</option>
+            </select>
+        </div>
+        <div class="col-sm">
+            <select class="form-select" name="rr" aria-label="Risk Reward">
+                <option value="0.1" {% if request.args.get('rr', '0.1') == '0.1' %}selected{% endif %}>0.1:1 risk reward</option>
+                <option value="1.0" {% if request.args.get('rr') == '1.0' %}selected{% endif %}>1:1 risk reward</option>
+                <option value="1.5" {% if request.args.get('rr') == '1.5' %}selected{% endif %}>1.5:1 risk reward</option>
+                <option value="2.0" {% if request.args.get('rr') == '2.0' %}selected{% endif %}>2:1 risk reward</option>
+            </select>
+        </div>
+        <div class="col-sm">
+        <input type="text" name="entry_date" value="{{ entry_date }}" class="form-control" placeholder="Entry date" aria-label="Entry Date">
+      </div>
+        <div class="col-sm">
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+    </div>
+</form>
+{#    <div class="row g-3 mb-3">#}
+{#        <div class="col-sm">#}
+{#            <select class="form-select" aria-label="Trades">#}
+{#                <option selected>10 trades or more</option>#}
+{#                <option value="10">10 trades or more</option>#}
+{#                <option value="15">15 trades or more</option>#}
+{#                <option value="20">20 trades or more</option>#}
+{#                <option value="25">25 trades or more</option>#}
+{#            </select>#}
+{#        </div>#}
+{#        <div class="col-sm">#}
+{#            <select class="form-select" aria-label="Risk Reward">#}
+{#                <option selected>1:1 risk reward</option>#}
+{#                <option value="1.0">1.5:1 risk reward</option>#}
+{#                <option value="1.5">1.5:1 risk reward</option>#}
+{#                <option value="2.0">2:1 risk reward</option>#}
+{##}
+{#            </select>#}
+{#        </div>#}
+{#        <div class="col-sm">#}
+{#            <button type="submit" class="btn btn-primary">Filter</button>#}
+{#        </div>#}
+{#    </div>#}
+    <p>{{ data|length }} Results</p>
+    <table class="table table-sm !table-striped !table-hover fs-xs">
+      <thead>
+      <tr>
+        {% for col in header %}
+            <th scope="col">{{ col }}</th>
+          {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in data[:100] %}
+        <tr>
+          <th scope="row">{{ row[1] }}</th>
+          <td>{{ row[7]|int }}%</td>
+          <td>{% if row[10]|float >= (row[11]|float * 2) %}<span class="badge text-bg-secondary">{{ row[10] }}%</span>{% else %}{{ row[10] }}%{% endif %}</td>
+          <td>-{{ row[11] }}%</td>
+          <td>{{ row[20]|int }}</td>
+          <td>{{ row[3] }}</td>
+          <td>{{ row[4] }}</td>
+          <td>{{ row[5] }}</td>
+          <td>{{ row[6] }}</td>
+          <td>
+            <a href="https://seasonaltrader.com/host/History/Stocks.aspx?trade={{ row[19] }}&service_id=3" target="_blank" class="text-decoration-none">{{ row[19] }} <i class="bi bi-box-arrow-up-right"></i></a>
+          </td>
+        <tr>
+      {% endfor %}
+    </tbody>
+    </table>
+{#    <p>#}
+{#        {% for d in data[:10] %}#}
+{#            {{ d[0] }} {{ d[1] }} {{ d[2] }} {{ d[3] }}<br>#}
+{#        {% endfor %}#}
+{#    </p>#}
+{#    <div class="d-flex flex-row mb-3">#}
+{#        {% for h in header %}#}
+{#            <div class="p-2">#}
+{#                {{ h }}#}
+{#            </div>#}
+{#        {% endfor %}#}
+{#    </div>#}
+{#    {% for d in data[:10] %}#}
+{#        <div class="d-flex flex-row !mb-3">#}
+{#            <div class="p-2">{{ d[1] }}</div>#}
+{#            <div class="p-2">{{ d[7] }}</div>#}
+{#            <div class="p-2">{{ d[10] }}</div>#}
+{#            <div class="p-2">{{ d[11] }}</div>#}
+{#            <div class="p-2">{{ d[20] }}</div>#}
+{#            <div class="p-2">{{ d[3] }}</div>#}
+{#            <div class="p-2">{{ d[4] }}</div>#}
+{#        </div>#}
+{#    {% endfor %}#}
+
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+</body>
+</html>
