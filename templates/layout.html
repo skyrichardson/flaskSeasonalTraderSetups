@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Seasonal Trader Setups</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <script>
+        !function(t,e){var o,n,p,r;e.__SV||(window.posthog && window.posthog.__loaded)||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="Ii init Di qi Sr Bi Zi Pi capture calculateEventProperties Yi register register_once register_for_session unregister unregister_for_session Xi getFeatureFlag getFeatureFlagPayload getFeatureFlagResult isFeatureEnabled reloadFeatureFlags updateFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey displaySurvey cancelPendingSurvey canRenderSurvey canRenderSurveyAsync Ji identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException startExceptionAutocapture stopExceptionAutocapture loadToolbar get_property getSessionProperty Wi Vi createPersonProfile setInternalOrTestUser Gi Fi Ki opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing get_explicit_consent_status is_capturing clear_opt_in_out_capturing $i debug Tr Ui getPageViewId captureTraceFeedback captureTraceMetric Ri".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+        posthog.init('phc_kTqFT2ZUefSg3NjvXw6ryJvJ6fg5D9ADXNYhCH6fkPbo', {
+            api_host: 'https://us.i.posthog.com',
+            defaults: '2026-01-30',
+            person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
+        })
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-expand-sm bg-body-tertiary ">
+    <div class="container-fluid justify-content-start">
+        <a class="navbar-brand" href="/">Seasonal Trader Setups</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="navbar-nav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                             {{ month_name }} {{ year }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for p in period_list  %}
+                                <li><a class="dropdown-item" href="{{ url_for(request.path.split('/')[-1]+'_view', year=p.year, month=p.month, trades=trades, rr=rr, entry_date=entry_date) }}">
+                                {{ p.strftime('%B')}} {{ p.year }}</a>
+                            </li>
+{#                            <li><a class="dropdown-item" href="#">February 2026</a></li>#}
+{#                            <li><a class="dropdown-item" href="#">March 2026</a></li>#}
+{#                            <li><a class="dropdown-item" href="#">April 2026</a></li>#}
+                            {% endfor %}
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <nav class="nav nav-underline mb-2">
+        {% if request.path.split('/')[-1] == 'trades' %}
+            <a class="nav-link" href="{{ url_for('setups_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, growth=growth) }}">
+                Setups
+            </a>
+            <a class="nav-link active" aria-current="trades" href="">Trades</a>
+        {% else %}
+            <a class="nav-link active" aria-current="setups" href="">Setups</a>
+            <a class="nav-link" href="{{ url_for('trades_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, growth=growth) }}">
+                Trades
+            </a>
+        {% endif %}
+    </nav>
+    <form method="GET" action="">
+        <div class="row g-3 mb-2">
+            <div class="col-sm">
+                <select class="form-select" name="trades" aria-label="Trades">
+                    <option value="10" {% if request.args.get('trades', '10') == '10' %}selected{% endif %}>
+                        10 trades or more
+                    </option>
+                    <option value="15" {% if request.args.get('trades') == '15' %}selected{% endif %}>
+                        15 trades or more
+                    </option>
+                    <option value="20" {% if request.args.get('trades') == '20' %}selected{% endif %}>
+                        20 trades or more
+                    </option>
+                    <option value="25" {% if request.args.get('trades') == '25' %}selected{% endif %}>
+                        25 trades or more
+                    </option>
+                </select>
+            </div>
+            <div class="col-sm">
+                <select class="form-select" name="rr" aria-label="Risk Reward">
+                    <option value="0.1" {% if request.args.get('rr', '0.1') == '0.1' %}selected{% endif %}>
+                        Risk Reward (No filter)
+                    </option>
+                    <option value="1.0" {% if request.args.get('rr') == '1.0' %}selected{% endif %}>
+                        1:1 Risk Reward
+                    </option>
+                    <option value="1.5" {% if request.args.get('rr') == '1.5' %}selected{% endif %}>
+                        1.5:1 Risk Reward
+                    </option>
+                    <option value="2.0" {% if request.args.get('rr') == '2.0' %}selected{% endif %}>
+                        2:1 Risk Reward
+                    </option>
+                </select>
+            </div>
+            <div class="col-sm">
+                <input type="text" name="entry_date" value="{{ entry_date }}" class="form-control"
+                       placeholder="Entry date" aria-label="Entry Date">
+            </div>
+         <div class="col-sm">
+                <select class="form-select" name="growth" aria-label="Growth">
+                    <option value="" {% if request.args.get('growth', '') == '' %}selected{% endif %}>
+                        Growth (No filter)
+                    </option>
+                    <option value="Y" {% if request.args.get('growth') == 'Y' %}selected{% endif %}>
+                        Growth: Y
+                    </option>
+                    <option value="N/A" {% if request.args.get('growth') == 'N/A' %}selected{% endif %}>
+                        Growth: N/A
+                    </option>
+                    <option value="N" {% if request.args.get('growth') == 'N' %}selected{% endif %}>
+                        Growth: N
+                    </option>
+
+                </select>
+            </div>
+            <div class="col-sm">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+    </form>
+    <h6>
+        {% block results_total %}{% endblock %}
+        {% if total_setups %}
+            <i class="bi bi-info-circle"
+               data-bs-toggle="tooltip"
+               data-bs-placement="right"
+               data-bs-html="true"
+               data-bs-title="{% block total_setups %}{% endblock %} results for 75% win, 5% stop loss and 25 days or less trade duration."
+            ></i>
+        {% endif %}
+    </h6>
+    {% block results %}{% endblock %}
+
+    <div class="card-body">
+        <h4>Notes</h4>
+        <ul>
+            <li>
+                Setups require a timing rigger such as Jake Bernstein's 8OC indicator
+            </li>
+            <li>
+                "Don't Sell Stocks on Monday" is a classic 1986 investment book written by Yale Hirsch. Hence any trade
+                that would exit on a Monday is rolled forward to Tuesday.
+            </li>
+            <li>
+                Learn to trade this method by visiting
+                <a href="https://seasonaltrader.com" class="text-decoration-none">seasonaltrader.com <i
+                        class="bi bi-box-arrow-up-right"></i></a>.
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous">
+
+</script>
+<script>
+    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltips.forEach(el => new bootstrap.Tooltip(el));
+</script>
+</body>
+</html>

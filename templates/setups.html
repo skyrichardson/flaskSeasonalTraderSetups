@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block results_total %}{{ data|length }} Trades{% endblock %}
+{% block total_setups %}{{ total_setups[0][0] }}{% endblock %}
+
+{% block results %}
+    <table class="table table-sm !table-striped !table-hover fs-xs">
+        <thead>
+        <tr>
+            {% for col in header %}
+                <th scope="col">{{ col }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in data %}
+            <tr>
+                <th scope="row">{{ row[1] }}</th>
+                <td>{{ row[7]|int }}%</td>
+                <td>{% if row[10]|float >= (row[11]|float * 2) %}
+                    <span class="badge text-bg-secondary">{{ row[10] }}%</span>{% else %}{{ row[10] }}%{% endif %}</td>
+                <td>{{ row[11] }}%</td>
+                <td>{{ row[20]|int }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>{{ row[6] }}</td>
+                <td>{{ row[16] }}</td>
+                <td>
+                    <a href="https://seasonaltrader.com/host/History/Stocks.aspx?trade={{ row[19] }}&service_id=3"
+                       target="_blank" class="text-decoration-none">{{ row[19] }} <i
+                            class="bi bi-box-arrow-up-right"></i></a>
+                </td>
+            <tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
