@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "table_layout.html" %}
 
 {% block results_total %}{{ data|length }} Trades{% endblock %}
 {% block total_setups %}{{ total_setups[0][0] }}{% endblock %}
@@ -25,10 +25,10 @@
                 <td>{{ row[16] }}</td>
                 <td>{{ row[3] }}</td>
                 <td
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    data-bs-html="true"
-                    data-bs-title="Entry price: {{ row[23] }}, Exit price: {{ row[27] }}, Net: {{ row[29] }}"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        data-bs-html="true"
+                        data-bs-title="Entry price: {{ row[23] }}, Exit price: {{ row[27] }}, Net: {{ row[29] }}"
                 >
                     {{ row[28] }} on {{ row[26] }} {% if row[28] == 'time_stop' %}{{ row[30] }}%{% endif %}</td>
                 <td>

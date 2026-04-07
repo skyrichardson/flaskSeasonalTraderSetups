@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <form method="GET" action="">
+        <div class="row g-3 my-1">
+            <div class="col-sm">
+                <select class="form-select" name="trades" aria-label="Trades">
+                    <option value="10" {% if request.args.get('trades', '10') == '10' %}selected{% endif %}>
+                        10 trades or more
+                    </option>
+                    <option value="15" {% if request.args.get('trades') == '15' %}selected{% endif %}>
+                        15 trades or more
+                    </option>
+                    <option value="20" {% if request.args.get('trades') == '20' %}selected{% endif %}>
+                        20 trades or more
+                    </option>
+                    <option value="25" {% if request.args.get('trades') == '25' %}selected{% endif %}>
+                        25 trades or more
+                    </option>
+                </select>
+            </div>
+            <div class="col-sm">
+                <select class="form-select" name="rr" aria-label="Risk Reward">
+                    <option value="0.1" {% if request.args.get('rr', '0.1') == '0.1' %}selected{% endif %}>
+                        Risk Reward (No filter)
+                    </option>
+                    <option value="1.0" {% if request.args.get('rr') == '1.0' %}selected{% endif %}>
+                        1:1 Risk Reward
+                    </option>
+                    <option value="1.5" {% if request.args.get('rr') == '1.5' %}selected{% endif %}>
+                        1.5:1 Risk Reward
+                    </option>
+                    <option value="2.0" {% if request.args.get('rr') == '2.0' %}selected{% endif %}>
+                        2:1 Risk Reward
+                    </option>
+                </select>
+            </div>
+            <div class="col-sm">
+                <input type="text" name="entry_date" value="{{ entry_date }}" class="form-control"
+                       placeholder="Entry date" aria-label="Entry Date">
+            </div>
+            <div class="col-sm">
+                <select class="form-select" name="growth" aria-label="Growth">
+                    <option value="" {% if request.args.get('growth', '') == '' %}selected{% endif %}>
+                        Growth (No filter)
+                    </option>
+                    <option value="Y" {% if request.args.get('growth') == 'Y' %}selected{% endif %}>
+                        Growth: Y
+                    </option>
+                    <option value="N/A" {% if request.args.get('growth') == 'N/A' %}selected{% endif %}>
+                        Growth: N/A
+                    </option>
+                    <option value="N" {% if request.args.get('growth') == 'N' %}selected{% endif %}>
+                        Growth: N
+                    </option>
+
+                </select>
+            </div>
+            <div class="col-sm">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <nav class="nav nav-underline mb-2">
+        {% if request.path.split('/')[-1] == 'trades' %}
+            <a class="nav-link"
+               href="{{ url_for('setups_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, growth=growth) }}">
+                Setups
+            </a>
+            <a class="nav-link active" aria-current="trades" href="">Trades</a>
+        {% else %}
+            <a class="nav-link active" aria-current="setups" href="">Setups</a>
+            <a class="nav-link"
+               href="{{ url_for('trades_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, growth=growth) }}">
+                Trades
+            </a>
+        {% endif %}
+    </nav>
+
+    <h6>
+        {% block results_total %}{% endblock %}
+        {% if total_setups %}
+            <i class="bi bi-info-circle"
+               data-bs-toggle="tooltip"
+               data-bs-placement="right"
+               data-bs-html="true"
+               data-bs-title="
+                       {% block total_setups %}{% endblock %} results for 75% win, 5% stop loss and 25 days or less trade duration."
+            ></i>
+        {% endif %}
+    </h6>
+
+    {% block results %}{% endblock %}
+
+    <div class="card-body">
+        <h4>Notes</h4>
+        <ul>
+            <li>
+                Setups require a timing rigger such as Jake Bernstein's 8OC indicator
+            </li>
+            <li>
+                "Don't Sell Stocks on Monday" is a classic 1986 investment book written by Yale Hirsch. Hence any trade
+                that would exit on a Monday is rolled forward to Tuesday.
+            </li>
+            <li>
+                Learn to trade this method by visiting
+                <a href="https://seasonaltrader.com" class="text-decoration-none">seasonaltrader.com <i
+                        class="bi bi-box-arrow-up-right"></i></a>.
+            </li>
+        </ul>
+    </div>
+{% endblock %}
