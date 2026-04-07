@@ -118,5 +118,11 @@ def trades_view(year, month):
                            year=year, month=month, month_name=month_name, period_list=period_list)
 
 
+@app.route('/contact')
+def contact_view():
+    return render_template('contact.html', period_list=period_list, month_name='Trading Month')
+
+
+
 if __name__ == '__main__':
     app.run()
