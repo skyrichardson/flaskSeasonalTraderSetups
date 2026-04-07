@@ -57,7 +57,7 @@ def setups_view(year, month):
     return render_template('setups.html', data=data,
                            period=period, header=column_header, trades=trade_history_min,
                            rr=rr, entry_date=entry_date, growth=growth, total_setups=total_setups,
-                           year=year, month=month, period_list=period_list, month_name=month_name)
+                           year=year, month=month, period_list=period_list, month_name=month_name, now=datetime.now())
 
 
 @app.route('/<int:year>/<int:month>/trades')
@@ -115,7 +115,7 @@ def trades_view(year, month):
     return render_template('trades.html', data=result,
                            period=period, header=column_header, trades=trade_history_min,
                            rr=rr, entry_date=entry_date, growth=growth, total_setups=total_setups,
-                           year=year, month=month, month_name=month_name, period_list=period_list)
+                           year=year, month=month, month_name=month_name, period_list=period_list, now=datetime.now())
 
 
 @app.route('/contact')

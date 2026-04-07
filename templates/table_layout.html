@@ -93,7 +93,7 @@
 
     {% block results %}{% endblock %}
 
-    <div class="card-body">
+    <div class="card-body pb-5">
         <h4>Notes</h4>
         <ul>
             <li>
@@ -110,4 +110,14 @@
             </li>
         </ul>
     </div>
+    <footer class="mt-auto pt-5 pb-3 border-top">
+        <p>
+            <small class="text-muted">
+                Disclaimer and Risk Disclosure: The CFTC requires we state that — notice: hypothetical or simulated performance results have certain limitations. unlike an actual performance record, simulated results do not represent actual trading. Also since the trades have not actually been executed the results may have under or over compensated for the impact, if any, of certain market factors, such as lack of liquidity. Simulated trading programs in general are also subject to the fact that they are designed with the benefit of hindsight. No representation is being made that any account will or is likely to achieve profits or losses similar to those shown. The risk of loss in futures trading can be substantial. you should carefully consider whether such trading is suitable for you in light of your financial condition. Past profits are not necessarily indicative of future performance. there is a risk of loss in futures trading. The information contained herein has been obtained from sources believed to be reliable, however it cannot be guaranteed as to accuracy or completeness, and it is subject to change without notice. It should not be assumed that the seasonal price tendencies shown herein or that the suggestions regarding their use will be profitable or that they will not result in losses. Network Press, its directors, shareholders or employees assume no liability in connection with the use of the information contained here!
+            </small>
+        </p>
+        <p class="text-end">
+            <small class="text-muted">© {{ now.year }} Network Press, Inc. - All rights reserved</small>
+        </p>
+    </footer>
 {% endblock %}
