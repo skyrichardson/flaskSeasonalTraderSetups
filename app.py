@@ -39,7 +39,7 @@ def setups_view(year, month):
             reader = csv.reader(f)
             data = list(reader)
             data = [row for row in data if int(row[20]) >= int(trade_history_min)]
-            data = [row for row in data if float(row[10]) >= (float(row[11]) * float(rr))]
+            data = [row for row in data if float(row[10]) >= (3 * float(rr))]
             if entry_date:
                 data = [row for row in data if row[3] == entry_date]
             if growth:
@@ -75,7 +75,7 @@ def trades_view(year, month):
             reader = csv.reader(f)
             setups = list(reader)
             setups = [row for row in setups if int(row[20]) >= int(trade_history_min)]
-            setups = [row for row in setups if float(row[10]) >= (float(row[11]) * float(rr))]
+            setups = [row for row in setups if float(row[10]) >= (3 * float(rr))]
             if entry_date:
                 setups = [row for row in setups if row[3] == entry_date]
             if growth:
