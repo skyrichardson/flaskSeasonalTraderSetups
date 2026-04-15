@@ -23,10 +23,12 @@ def index():
     now = datetime.now()
     return redirect(url_for('setups_view', year=now.year, month=now.month))
 
+
 @app.route('/stocks')
 def stocks_index():
     now = datetime.now()
     return redirect(url_for('setups_view', year=now.year, month=now.month))
+
 
 @app.route('/stocks/<int:year>/<int:month>/setups')
 def setups_view(year, month):
@@ -37,20 +39,25 @@ def setups_view(year, month):
     rr = request.args.get('rr', '0.1')
     entry_date = request.args.get('entry_date', '')
     growth = request.args.get('growth', '')
-    column_header = ['Symbol', 'Win %', 'Avg Win %', 'Avg Loss %',
-                     'Trades', 'Entry', 'Exit', 'Stop', 'P/L Ratio', 'Growth', 'ID']
+    sort = request.args.get('sort', 0, type=int)
+    direction = request.args.get('dir', 'asc')
+    column_header = [['Symbol', 1], ['Win %', 7], ['Avg Win %', 10], ['Avg Loss %', 11], ['Trades', 20],
+                     ['Entry', 3], ['Exit', 4], ['Stop', 5], ['P/L Ratio', 6], ['Growth', 16],['ID', 19]]
     try:
         with open(f'data/{period}_long_mature_setups.csv', 'r') as f:
             reader = csv.reader(f)
             data = list(reader)
             data = [row for row in data if int(row[20]) >= int(trade_history_min)]
             data = [row for row in data if float(row[10]) >= (3 * float(rr))]  # TODO switch 3 to row[5]
+            data = [[float(v) if i == 7 else v for i, v in enumerate(row)] for row in data]  # to sort 'Win %'
             if entry_date:
                 data = [row for row in data if row[3] == entry_date]
             if growth:
                 data = [row for row in data if row[16] == growth]
+            reverse = direction == 'desc'
+            sorted_data = sorted(data, key=lambda row: row[sort], reverse=reverse)
     except FileNotFoundError:
-        data = []
+        sorted_data = []
 
     try:
         with open(f'data/{period}.csv', 'r') as f:
@@ -59,10 +66,19 @@ def setups_view(year, month):
     except FileNotFoundError:
         total_setups = []
 
-    return render_template('setups.html', data=data,
+    sort_direction_symbol = ''
+    if direction == 'asc':
+        sort_direction_symbol = '▲'
+        direction = 'desc'
+    elif direction == 'desc':  # ← elif prevents double-triggering
+        sort_direction_symbol = '▼'
+        direction = 'asc'
+
+    return render_template('setups.html', data=sorted_data,
                            period=period, header=column_header, trades=trade_history_min,
                            rr=rr, entry_date=entry_date, growth=growth, total_setups=total_setups,
-                           year=year, month=month, period_list=period_list, month_name=month_name, now=datetime.now())
+                           year=year, month=month, period_list=period_list, month_name=month_name,
+                           now=datetime.now(), sort=sort, dir=direction, sort_direction_symbol=sort_direction_symbol,)
 
 
 @app.route('/stocks/<int:year>/<int:month>/trades')

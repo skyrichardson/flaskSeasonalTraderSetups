@@ -8,7 +8,15 @@
         <thead>
         <tr>
             {% for col in header %}
-                <th scope="col">{{ col }}</th>
+                <th scope="col">
+                    <a href="{{ url_for('setups_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, symbol=symbol, sort=col[1], dir=dir) }}"
+                       class="link-body-emphasis link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">
+                        {{ col[0] }}
+                        {% if sort == col[1] %}
+                            {{ sort_direction_symbol }}
+                        {% endif %}
+                    </a>
+                </th>
             {% endfor %}
         </tr>
         </thead>
