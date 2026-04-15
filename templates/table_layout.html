@@ -11,43 +11,48 @@
                     {% set view_name = 'trades_view' %}
                 {% else %}
                     {% set view_name = 'setups_view' %}
-                {%  endif %}
+                {% endif %}
             {% elif request.path.split('/')[1] == 'futures' %}
                 {% if request.path.split('/')[-1] == 'trades' %}
                     {% set view_name = 'futures_trades_view' %}
                 {% else %}
                     {% set view_name = 'futures_setups_view' %}
-                {%  endif %}
+                {% endif %}
             {% endif %}
-            {% for p in period_list  %}
-            <li>
-                <a class="dropdown-item" href="{{ url_for(view_name, year=p.year, month=p.month, trades=trades, rr=rr, entry_date=entry_date) }}">
-                    {{ p.strftime('%B')}} {{ p.year }}
-                </a>
-            </li>
+            {% for p in period_list %}
+                <li>
+                    <a class="dropdown-item"
+                       href="{{ url_for(view_name, year=p.year, month=p.month, trades=trades, rr=rr, entry_date=entry_date) }}">
+                        {{ p.strftime('%B') }} {{ p.year }}
+                    </a>
+                </li>
             {% endfor %}
-{#            <li><a class="dropdown-item" href="#">Action</a></li>#}
+            {#            <li><a class="dropdown-item" href="#">Action</a></li>#}
         </ul>
     </div>
     <form method="GET" action="">
         <div class="row g-3 !my-1">
             {% if request.path.split('/')[1] == 'stocks' %}
-            <div class="col-sm">
-                <select class="form-select" name="trades" aria-label="Trades">
-                    <option value="10" {% if request.args.get('trades', '10') == '10' %}selected{% endif %}>
-                        10 trades or more
-                    </option>
-                    <option value="15" {% if request.args.get('trades') == '15' %}selected{% endif %}>
-                        15 trades or more
-                    </option>
-                    <option value="20" {% if request.args.get('trades') == '20' %}selected{% endif %}>
-                        20 trades or more
-                    </option>
-                    <option value="25" {% if request.args.get('trades') == '25' %}selected{% endif %}>
-                        25 trades or more
-                    </option>
-                </select>
-            </div>
+                <div class="col-sm">
+                    <input type="text" name="symbol" value="{{ symbol }}" class="form-control"
+                           placeholder="Symbol" aria-label="Symbol">
+                </div>
+                <div class="col-sm">
+                    <select class="form-select" name="trades" aria-label="Trades">
+                        <option value="10" {% if request.args.get('trades', '10') == '10' %}selected{% endif %}>
+                            10 trades or more
+                        </option>
+                        <option value="15" {% if request.args.get('trades') == '15' %}selected{% endif %}>
+                            15 trades or more
+                        </option>
+                        <option value="20" {% if request.args.get('trades') == '20' %}selected{% endif %}>
+                            20 trades or more
+                        </option>
+                        <option value="25" {% if request.args.get('trades') == '25' %}selected{% endif %}>
+                            25 trades or more
+                        </option>
+                    </select>
+                </div>
             {% endif %}
             <div class="col-sm">
                 <select class="form-select" name="rr" aria-label="Risk Reward">
@@ -96,19 +101,22 @@
         {% if request.path.split('/')[1] == 'stocks' %}
             {% if request.path.split('/')[-1] == 'trades' %}
                 <a class="nav-link text-reset"
-                   href="{{ url_for('setups_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, growth=growth) }}">
+                   href="{{ url_for('setups_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, growth=growth, symbol=symbol) }}">
                     Setups
                 </a>
-                <a class="nav-link active" aria-current="trades" href="">Trades <span class="badge rounded-pill text-bg-secondary">{% block results_total %}{% endblock %}</span></a>
+                <a class="nav-link active" aria-current="trades" href="">Trades <span
+                        class="badge rounded-pill text-bg-secondary">{% block results_total %}{% endblock %}</span></a>
             {% else %}
-                <a class="nav-link active" aria-current="setups" href="">Setups <span class="badge rounded-pill text-bg-secondary">{{ self.results_total() }}</span></a>
+                <a class="nav-link active" aria-current="setups" href="">Setups <span
+                        class="badge rounded-pill text-bg-secondary">{{ self.results_total() }}</span></a>
                 <a class="nav-link text-reset"
                    href="{{ url_for('trades_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, growth=growth) }}">
                     Trades
                 </a>
             {% endif %}
         {% elif request.path.split('/')[1] == 'futures' %}
-            <a class="nav-link active" aria-current="setups" href="">Setups <span class="badge rounded-pill text-bg-secondary">{{ self.results_total() }}</span></a>
+            <a class="nav-link active" aria-current="setups" href="">Setups <span
+                    class="badge rounded-pill text-bg-secondary">{{ self.results_total() }}</span></a>
             <a class="nav-link disabled"
                href="#">
                 Trades (not available yet)
@@ -116,19 +124,19 @@
         {% endif %}
     </nav>
 
-{#    <h6>#}
-{#        {% block results_total %}{% endblock %}#}
-{#        {% if total_setups %}#}
-{#            <i class="bi bi-info-circle"#}
-{#               data-bs-toggle="tooltip"#}
-{#               data-bs-placement="right"#}
-{#               data-bs-html="true"#}
-{#               data-bs-title="#}
-{##}
-{#                       {% block total_setups %}{% endblock %} results for 75% win, 5% stop loss and 25 days or less trade duration."#}
-{#            ></i>#}
-{#        {% endif %}#}
-{#    </h6>#}
+    {#    <h6>#}
+    {#        {% block results_total %}{% endblock %}#}
+    {#        {% if total_setups %}#}
+    {#            <i class="bi bi-info-circle"#}
+    {#               data-bs-toggle="tooltip"#}
+    {#               data-bs-placement="right"#}
+    {#               data-bs-html="true"#}
+    {#               data-bs-title="#}
+    {##}
+    {#                       {% block total_setups %}{% endblock %} results for 75% win, 5% stop loss and 25 days or less trade duration."#}
+    {#            ></i>#}
+    {#        {% endif %}#}
+    {#    </h6>#}
 
     {% block results %}{% endblock %}
 

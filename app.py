@@ -38,6 +38,7 @@ def setups_view(year, month):
     rr = request.args.get('rr', '0.1')
     entry_date = request.args.get('entry_date', '')
     growth = request.args.get('growth', '')
+    symbol = request.args.get('symbol', '').upper()
     sort = request.args.get('sort', 0, type=int)
     direction = request.args.get('dir', 'asc')
     column_header = [['Symbol', 1], ['Win %', 7], ['Avg Win %', 10], ['Avg Loss %', 11], ['Trades', 20],
@@ -53,6 +54,8 @@ def setups_view(year, month):
                 data = [row for row in data if row[3] == entry_date]
             if growth:
                 data = [row for row in data if row[16] == growth]
+            if symbol:
+                data = [row for row in data if row[1] == symbol]
             reverse = direction == 'desc'
             sorted_data = sorted(data, key=lambda row: row[sort], reverse=reverse)
     except FileNotFoundError:
@@ -75,7 +78,7 @@ def setups_view(year, month):
 
     return render_template('setups.html', data=sorted_data,
                            period=period, header=column_header, trades=trade_history_min,
-                           rr=rr, entry_date=entry_date, growth=growth, total_setups=total_setups,
+                           rr=rr, entry_date=entry_date, growth=growth, symbol=symbol, total_setups=total_setups,
                            year=year, month=month, period_list=period_list, month_name=month_name,
                            now=datetime.now(), sort=sort, dir=direction, sort_direction_symbol=sort_direction_symbol)
 
