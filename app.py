@@ -17,13 +17,18 @@ try:
 except FileNotFoundError:
     months = []
 
+
 @app.route('/')
 def index():
     now = datetime.now()
     return redirect(url_for('setups_view', year=now.year, month=now.month))
 
+@app.route('/stocks')
+def stocks_index():
+    now = datetime.now()
+    return redirect(url_for('setups_view', year=now.year, month=now.month))
 
-@app.route('/<int:year>/<int:month>/setups')
+@app.route('/stocks/<int:year>/<int:month>/setups')
 def setups_view(year, month):
     period = f'{year}_{month:02d}'  # formats month as 2 digits e.g. 04
     trade_history_min = request.args.get('trades', '10')
@@ -60,7 +65,7 @@ def setups_view(year, month):
                            year=year, month=month, period_list=period_list, month_name=month_name, now=datetime.now())
 
 
-@app.route('/<int:year>/<int:month>/trades')
+@app.route('/stocks/<int:year>/<int:month>/trades')
 def trades_view(year, month):
     period = f'{year}_{month:02d}'  # formats month as 2 digits e.g. 04
     month_name = datetime.strptime(str(month), '%m').strftime('%B')
@@ -117,6 +122,48 @@ def trades_view(year, month):
                            rr=rr, entry_date=entry_date, growth=growth, total_setups=total_setups,
                            year=year, month=month, month_name=month_name, period_list=period_list, now=datetime.now())
 
+@app.route('/futures/')
+def futures_index():
+    now = datetime.now()
+    return redirect(url_for('futures_setups_view', year=now.year, month=now.month))
+
+
+@app.route('/futures/<int:year>/<int:month>/setups')
+def futures_setups_view(year, month):
+    period = f'{year}_{month:02d}'  # formats month as 2 digits e.g. 04
+    trade_history_min = request.args.get('trades', '10')
+    month_name = datetime.strptime(str(month), '%m').strftime('%B')
+    print('foo', month_name)
+    rr = request.args.get('rr', '0.1')
+    entry_date = request.args.get('entry_date', '')
+    growth = request.args.get('growth', '')
+    column_header = ['Name', 'Month', 'Win %', 'Avg Win %', 'Avg Loss %',
+                    'Entry', 'Exit', 'Stop', 'P/L Ratio', 'Growth', 'ID']
+    try:
+        with open(f'data/{period}_commodity_trades.csv', 'r') as f:
+            reader = csv.reader(f)
+            next(reader)  # Skip header row
+            data = list(reader)
+            # data = [row for row in data if int(row[20]) >= int(trade_history_min)]
+            data = [row for row in data if float(row[10]) >= (3 * float(rr))]
+            if entry_date:
+                data = [row for row in data if row[3] == entry_date]
+            if growth:
+                data = [row for row in data if row[15] == growth]
+    except FileNotFoundError:
+        data = []
+
+    try:
+        with open(f'data/{period}.csv', 'r') as f:
+            reader = csv.reader(f)
+            total_setups = list(reader)
+    except FileNotFoundError:
+        total_setups = []
+
+    return render_template('setups_futures.html', data=data,
+                           period=period, header=column_header, trades=trade_history_min,
+                           rr=rr, entry_date=entry_date, growth=growth, total_setups=total_setups,
+                           year=year, month=month, period_list=period_list, month_name=month_name, now=datetime.now())
 
 @app.route('/contact')
 def contact_view():
