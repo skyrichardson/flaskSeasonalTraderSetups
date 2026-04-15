@@ -44,7 +44,7 @@ def setups_view(year, month):
             reader = csv.reader(f)
             data = list(reader)
             data = [row for row in data if int(row[20]) >= int(trade_history_min)]
-            data = [row for row in data if float(row[10]) >= (3 * float(rr))]
+            data = [row for row in data if float(row[10]) >= (3 * float(rr))]  # TODO switch 3 to row[5]
             if entry_date:
                 data = [row for row in data if row[3] == entry_date]
             if growth:
@@ -145,7 +145,7 @@ def futures_setups_view(year, month):
             next(reader)  # Skip header row
             data = list(reader)
             # data = [row for row in data if int(row[20]) >= int(trade_history_min)]
-            data = [row for row in data if float(row[10]) >= (3 * float(rr))]
+            data = [row for row in data if float(row[10]) >= (float(row[5]) * float(rr))]
             if entry_date:
                 data = [row for row in data if row[3] == entry_date]
             if growth:

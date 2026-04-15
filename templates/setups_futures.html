@@ -18,7 +18,7 @@
                 <th scope="row">{{ row[0] }}</th>
                 <td>{{ row[1] }}</td>
                 <td>{{ row[7] }}%</td>
-                <td>{% if row[10]|float >= 6 %}
+                <td>{% if row[10]|float >= (row[5]|float * 2) %}
                     <span class="badge text-bg-secondary">{{ row[10] }}%</span>{% else %}{{ row[10] }}%{% endif %}</td>
                 <td>{{ row[11] }}%</td>
 {#                <td>trades</td>#}
