@@ -1,8 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <div class="dropdown my-2">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ month_name }} {{ year }}
+        </button>
+        <ul class="dropdown-menu">
+            {% if request.path.split('/')[1] == 'stocks' %}
+                {% if request.path.split('/')[-1] == 'trades' %}
+                    {% set view_name = 'trades_view' %}
+                {% else %}
+                    {% set view_name = 'setups_view' %}
+                {%  endif %}
+            {% elif request.path.split('/')[1] == 'futures' %}
+                {% if request.path.split('/')[-1] == 'trades' %}
+                    {% set view_name = 'futures_trades_view' %}
+                {% else %}
+                    {% set view_name = 'futures_setups_view' %}
+                {%  endif %}
+            {% endif %}
+            {% for p in period_list  %}
+            <li>
+                <a class="dropdown-item" href="{{ url_for(view_name, year=p.year, month=p.month, trades=trades, rr=rr, entry_date=entry_date) }}">
+                    {{ p.strftime('%B')}} {{ p.year }}
+                </a>
+            </li>
+            {% endfor %}
+{#            <li><a class="dropdown-item" href="#">Action</a></li>#}
+        </ul>
+    </div>
     <form method="GET" action="">
-        <div class="row g-3 my-1">
+        <div class="row g-3 !my-1">
+            {% if request.path.split('/')[1] == 'stocks' %}
             <div class="col-sm">
                 <select class="form-select" name="trades" aria-label="Trades">
                     <option value="10" {% if request.args.get('trades', '10') == '10' %}selected{% endif %}>
@@ -19,6 +48,7 @@
                     </option>
                 </select>
             </div>
+            {% endif %}
             <div class="col-sm">
                 <select class="form-select" name="rr" aria-label="Risk Reward">
                     <option value="0.1" {% if request.args.get('rr', '0.1') == '0.1' %}selected{% endif %}>
@@ -57,39 +87,48 @@
                 </select>
             </div>
             <div class="col-sm">
-                <button type="submit" class="btn btn-primary">Filter</button>
+                <button type="submit" class="btn btn-outline-secondary">Filter</button>
             </div>
         </div>
     </form>
 
     <nav class="nav nav-underline mb-2">
-        {% if request.path.split('/')[-1] == 'trades' %}
-            <a class="nav-link"
-               href="{{ url_for('setups_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, growth=growth) }}">
-                Setups
-            </a>
-            <a class="nav-link active" aria-current="trades" href="">Trades</a>
-        {% else %}
-            <a class="nav-link active" aria-current="setups" href="">Setups</a>
-            <a class="nav-link"
-               href="{{ url_for('trades_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, growth=growth) }}">
-                Trades
+        {% if request.path.split('/')[1] == 'stocks' %}
+            {% if request.path.split('/')[-1] == 'trades' %}
+                <a class="nav-link text-reset"
+                   href="{{ url_for('setups_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, growth=growth) }}">
+                    Setups
+                </a>
+                <a class="nav-link active" aria-current="trades" href="">Trades <span class="badge rounded-pill text-bg-secondary">{% block results_total %}{% endblock %}</span></a>
+            {% else %}
+                <a class="nav-link active" aria-current="setups" href="">Setups <span class="badge rounded-pill text-bg-secondary">{{ self.results_total() }}</span></a>
+                <a class="nav-link text-reset"
+                   href="{{ url_for('trades_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, growth=growth) }}">
+                    Trades
+                </a>
+            {% endif %}
+        {% elif request.path.split('/')[1] == 'futures' %}
+            <a class="nav-link active" aria-current="setups" href="">Setups <span class="badge rounded-pill text-bg-secondary">{{ self.results_total() }}</span></a>
+            <a class="nav-link disabled"
+               href="#">
+                Trades (not available yet)
             </a>
         {% endif %}
     </nav>
 
-    <h6>
-        {% block results_total %}{% endblock %}
-        {% if total_setups %}
-            <i class="bi bi-info-circle"
-               data-bs-toggle="tooltip"
-               data-bs-placement="right"
-               data-bs-html="true"
-               data-bs-title="
-                       {% block total_setups %}{% endblock %} results for 75% win, 5% stop loss and 25 days or less trade duration."
-            ></i>
-        {% endif %}
-    </h6>
+{#    <h6>#}
+{#        {% block results_total %}{% endblock %}#}
+{#        {% if total_setups %}#}
+{#            <i class="bi bi-info-circle"#}
+{#               data-bs-toggle="tooltip"#}
+{#               data-bs-placement="right"#}
+{#               data-bs-html="true"#}
+{#               data-bs-title="#}
+{##}
+{#                       {% block total_setups %}{% endblock %} results for 75% win, 5% stop loss and 25 days or less trade duration."#}
+{#            ></i>#}
+{#        {% endif %}#}
+{#    </h6>#}
 
     {% block results %}{% endblock %}
 
@@ -113,7 +152,21 @@
     <footer class="mt-auto pt-5 pb-3 border-top">
         <p>
             <small class="text-muted">
-                Disclaimer and Risk Disclosure: The CFTC requires we state that — notice: hypothetical or simulated performance results have certain limitations. unlike an actual performance record, simulated results do not represent actual trading. Also since the trades have not actually been executed the results may have under or over compensated for the impact, if any, of certain market factors, such as lack of liquidity. Simulated trading programs in general are also subject to the fact that they are designed with the benefit of hindsight. No representation is being made that any account will or is likely to achieve profits or losses similar to those shown. The risk of loss in futures trading can be substantial. you should carefully consider whether such trading is suitable for you in light of your financial condition. Past profits are not necessarily indicative of future performance. there is a risk of loss in futures trading. The information contained herein has been obtained from sources believed to be reliable, however it cannot be guaranteed as to accuracy or completeness, and it is subject to change without notice. It should not be assumed that the seasonal price tendencies shown herein or that the suggestions regarding their use will be profitable or that they will not result in losses. Network Press, its directors, shareholders or employees assume no liability in connection with the use of the information contained here!
+                Disclaimer and Risk Disclosure: The CFTC requires we state that — notice: hypothetical or simulated
+                performance results have certain limitations. unlike an actual performance record, simulated results do
+                not represent actual trading. Also since the trades have not actually been executed the results may have
+                under or over compensated for the impact, if any, of certain market factors, such as lack of liquidity.
+                Simulated trading programs in general are also subject to the fact that they are designed with the
+                benefit of hindsight. No representation is being made that any account will or is likely to achieve
+                profits or losses similar to those shown. The risk of loss in futures trading can be substantial. you
+                should carefully consider whether such trading is suitable for you in light of your financial condition.
+                Past profits are not necessarily indicative of future performance. there is a risk of loss in futures
+                trading. The information contained herein has been obtained from sources believed to be reliable,
+                however it cannot be guaranteed as to accuracy or completeness, and it is subject to change without
+                notice. It should not be assumed that the seasonal price tendencies shown herein or that the suggestions
+                regarding their use will be profitable or that they will not result in losses. Network Press, its
+                directors, shareholders or employees assume no liability in connection with the use of the information
+                contained here!
             </small>
         </p>
         <p class="text-end">
