@@ -47,28 +47,34 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <div class="navbar-nav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                           aria-expanded="false">
-                             {{ month_name }} {{ year }}
-                        </a>
-                        <ul class="dropdown-menu">
-                            {% if request.path.split('/')[-1] == 'trades' %}
-                                {% set view_name = 'trades_view' %}
-                            {% else %}
-                                {% set view_name = 'setups_view' %}
-                            {%  endif %}
-                            {% for p in period_list  %}
-                                <li>
-                                    <a class="dropdown-item" href="{{ url_for(view_name, year=p.year, month=p.month, trades=trades, rr=rr, entry_date=entry_date) }}">
-                                        {{ p.strftime('%B')}} {{ p.year }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
+{#                    <li class="nav-item dropdown">#}
+{#                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"#}
+{#                           aria-expanded="false">#}
+{#                             {{ month_name }} {{ year }}#}
+{#                        </a>#}
+{#                        <ul class="dropdown-menu">#}
+{#                            {% if request.path.split('/')[-1] == 'trades' %}#}
+{#                                {% set view_name = 'trades_view' %}#}
+{#                            {% else %}#}
+{#                                {% set view_name = 'setups_view' %}#}
+{#                            {%  endif %}#}
+{#                            {% for p in period_list  %}#}
+{#                                <li>#}
+{#                                    <a class="dropdown-item" href="{{ url_for(view_name, year=p.year, month=p.month, trades=trades, rr=rr, entry_date=entry_date) }}">#}
+{#                                        {{ p.strftime('%B')}} {{ p.year }}#}
+{#                                    </a>#}
+{#                                </li>#}
+{#                            {% endfor %}#}
+{#                        </ul>#}
+{#                    </li>#}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path.split('/')[1] == 'stocks' %}active{% endif %}" href="/stocks">Stocks</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/contact">Contact</a>
+                        <a class="nav-link {% if request.path.split('/')[1] == 'futures' %}active{% endif %}" href="/futures">Futures</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path.split('/')[1] == 'contact' %}active{% endif %}" href="/contact">Contact</a>
                     </li>
                 </ul>
             </div>
