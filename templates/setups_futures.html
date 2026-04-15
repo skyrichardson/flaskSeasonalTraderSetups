@@ -1,0 +1,39 @@
+{% extends "table_layout.html" %}
+
+{% block results_total %}{{ data | length }}{% endblock %}
+{% block total_setups %}{{ total_setups[0][1] }}{% endblock %}
+
+{% block results %}
+    <table class="table table-sm !table-striped !table-hover fs-xs">
+        <thead>
+        <tr>
+            {% for col in header %}
+                <th scope="col">{{ col }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in data %}
+            <tr>
+                <th scope="row">{{ row[0] }}</th>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[7] }}%</td>
+                <td>{% if row[10]|float >= 6 %}
+                    <span class="badge text-bg-secondary">{{ row[10] }}%</span>{% else %}{{ row[10] }}%{% endif %}</td>
+                <td>{{ row[11] }}%</td>
+{#                <td>trades</td>#}
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>{{ row[6] }}</td>
+                <td>{{ row[15] }}</td>
+                <td>
+                    <a href="https://seasonaltrader.com/host/History/Commodities.aspx?trade={{ row[18] }}&service_id=1"
+                       target="_blank" class="link-body-emphasis link-offset-2 link-underline-opacity-0 link-underline-opacity-75-hover">{{ row[18] }} <i
+                            class="bi bi-box-arrow-up-right"></i></a>
+                </td>
+            <tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
