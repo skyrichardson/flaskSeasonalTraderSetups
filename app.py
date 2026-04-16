@@ -80,6 +80,13 @@ def get_earnings_report_dates(period, data):
     return data
 
 
+def get_symbol_list(data):
+    symbol_list = []
+    for row in data:
+        symbol_list.append(row[1])
+    return sorted(set(symbol_list))
+
+
 @app.route('/')
 def index():
     now = datetime.now()
@@ -110,6 +117,7 @@ def setups_view(year, month):
     sorted_data = sorted(data, key=lambda row: row[args['sort']], reverse=reverse)
     sort_direction_symbol, next_direction = resolve_sort_direction(args['direction'])
     sorted_data = get_earnings_report_dates(period, sorted_data)
+    symbol_list = get_symbol_list(sorted_data)
 
     return render_template('setups.html', data=sorted_data,
                            period=period, header=column_header,
@@ -118,7 +126,7 @@ def setups_view(year, month):
                            total_setups=load_total_setups(period),
                            year=year, month=month, period_list=period_list, month_name=month_name,
                            now=datetime.now(), sort=args['sort'],
-                           dir=next_direction, sort_direction_symbol=sort_direction_symbol)
+                           dir=next_direction, sort_direction_symbol=sort_direction_symbol, symbol_list=symbol_list)
 
 
 @app.route('/stocks/<int:year>/<int:month>/trades')
@@ -153,6 +161,7 @@ def trades_view(year, month):
     reverse = args['direction'] == 'desc'
     sorted_result = sorted(result, key=lambda row: row[args['sort']], reverse=reverse)
     sort_direction_symbol, next_direction = resolve_sort_direction(args['direction'])
+    symbol_list = get_symbol_list(sorted_result)
 
     return render_template('trades.html', data=sorted_result,
                            period=period, header=column_header,
@@ -161,7 +170,7 @@ def trades_view(year, month):
                            total_setups=load_total_setups(period),
                            year=year, month=month, month_name=month_name, period_list=period_list,
                            now=datetime.now(), sort=args['sort'],
-                           dir=next_direction, sort_direction_symbol=sort_direction_symbol)
+                           dir=next_direction, sort_direction_symbol=sort_direction_symbol, symbol_list=symbol_list)
 
 
 @app.route('/futures/')

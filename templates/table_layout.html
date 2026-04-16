@@ -144,6 +144,22 @@
     {#    </h6>#}
 
     {% block results %}{% endblock %}
+    <div class="mt-2 mb-3">
+        <div class="mb-3">
+            <label for="exampleFormControlTextarea1" class="form-label">Symbol List <span
+                    class="badge rounded-pill text-bg-secondary">{{ symbol_list | length }}</span></label>
+            <textarea class="form-control" id="exampleFormControlTextarea1"
+                      rows="3">{% for s in symbol_list %}{{ s }}, {% endfor %}</textarea>
+        </div>
+        <button onclick="copyToClipboard()" class="btn btn-outline-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard"
+                 viewBox="0 0 16 16">
+                <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"></path>
+                <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"></path>
+            </svg>
+            Copy to clipboard
+        </button>
+    </div>
 
     <div class="card-body pb-5">
         <h4>Notes</h4>
@@ -186,4 +202,22 @@
             <small class="text-muted">© {{ now.year }} Network Press, Inc. - All rights reserved</small>
         </p>
     </footer>
+    <script>
+        function copyToClipboard() {
+            const textarea = document.getElementById('exampleFormControlTextarea1');
+            const button = document.querySelector('button[onclick="copyToClipboard()"]');
+
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                const original = button.innerHTML;
+                button.innerHTML = '✓ Copied!';
+                button.classList.replace('btn-outline-secondary', 'btn-outline-success');
+                setTimeout(() => {
+                    button.innerHTML = original;
+                    button.classList.replace('btn-outline-success', 'btn-outline-secondary');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
 {% endblock %}
