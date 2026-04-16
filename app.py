@@ -64,6 +64,22 @@ def resolve_sort_direction(direction):
     return '▼', 'asc'
 
 
+def get_earnings_report_dates(period, data):
+    try:
+        with open(f'data/{period}_earnings_report_dates.csv', 'r') as f:
+            reader = csv.reader(f)
+            earnings_report_dates = list(reader)
+    except FileNotFoundError:
+        earnings_report_dates = []
+    for row in data:
+        row.append('')
+    for row in data:
+        for r in earnings_report_dates:
+            if row[1] == r[0]:
+                row[21] = r[1]
+    return data
+
+
 @app.route('/')
 def index():
     now = datetime.now()
@@ -93,6 +109,7 @@ def setups_view(year, month):
     reverse = args['direction'] == 'desc'
     sorted_data = sorted(data, key=lambda row: row[args['sort']], reverse=reverse)
     sort_direction_symbol, next_direction = resolve_sort_direction(args['direction'])
+    sorted_data = get_earnings_report_dates(period, sorted_data)
 
     return render_template('setups.html', data=sorted_data,
                            period=period, header=column_header,
@@ -111,11 +128,11 @@ def trades_view(year, month):
     args = get_common_args()
 
     column_header = [['Symbol', 1], ['Win %', 7], ['Avg Win %', 10], ['Avg Loss %', 11], ['Trades', 20],
-                     ['Growth', 16], ['Entry', 3], ['Exit', 26], ['ID', 19]]
+                     ['Growth', 16], ['Entry', 3], ['Exit', 27], ['ID', 19]]
 
     setups = load_and_filter_setups(period, **{k: args[k] for k in
                                                ('trade_history_min', 'rr', 'entry_date', 'growth', 'symbol')})
-
+    setups = get_earnings_report_dates(period, setups)
     try:
         with open(f'data/{period}_long_mature_trades.csv', newline='') as f:
             trades = list(csv.reader(f))
