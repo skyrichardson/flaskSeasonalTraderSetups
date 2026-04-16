@@ -188,7 +188,7 @@ def futures_setups_view(year, month):
             if growth:
                 data = [row for row in data if row[15] == growth]
             if commodity_name:
-                data = [row for row in data if commodity_name in row[0]]
+                data = [row for row in data if commodity_name.lower() in row[0].lower()]
             reverse = direction == 'desc'
             sorted_data = sorted(data, key=lambda row: row[sort], reverse=reverse)
     except FileNotFoundError:
