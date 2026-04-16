@@ -91,8 +91,12 @@ def trades_view(year, month):
     rr = request.args.get('rr', '0.1')
     entry_date = request.args.get('entry_date', '')
     growth = request.args.get('growth', '')
-    column_header = ['Symbol', 'Win %', 'Avg Win %', 'Avg Loss %',
-                         'Trades', 'Growth', 'Entry', 'Exit', 'ID']
+    symbol = request.args.get('symbol', '').upper()
+    sort = request.args.get('sort', 0, type=int)
+    direction = request.args.get('dir', 'asc')
+    reverse = direction == 'desc'
+    column_header = [['Symbol', 1], ['Win %', 7], ['Avg Win %', 10], ['Avg Loss %', 11], ['Trades', 20],
+                     ['Growth', 16], ['Entry', 3], ['Exit', 26], ['ID', 19]]
     try:
         with open(f'data/{period}_long_mature_setups.csv', 'r') as f:
             reader = csv.reader(f)
@@ -103,6 +107,8 @@ def trades_view(year, month):
                 setups = [row for row in setups if row[3] == entry_date]
             if growth:
                 setups = [row for row in setups if row[16] == growth]
+            if symbol:
+                setups = [row for row in setups if symbol in row[1]]
     except FileNotFoundError:
         setups = []
 
@@ -130,15 +136,23 @@ def trades_view(year, month):
                 extras = [v for i, v in enumerate(match) if i != key2]
                 merged.append(row + extras)
         return merged
-    # print(setups[0])
-    # print(trades[0])
-    result = merge_lists(setups, trades, key1=19, key2=0)
-    # print(result[0])
 
-    return render_template('trades.html', data=result,
+    result = merge_lists(setups, trades, key1=19, key2=0)
+    sorted_result = sorted(result, key=lambda row: row[sort], reverse=reverse)
+
+    sort_direction_symbol = ''
+    if direction == 'asc':
+        sort_direction_symbol = '▲'
+        direction = 'desc'
+    elif direction == 'desc':  # ← elif prevents double-triggering
+        sort_direction_symbol = '▼'
+        direction = 'asc'
+
+    return render_template('trades.html', data=sorted_result,
                            period=period, header=column_header, trades=trade_history_min,
-                           rr=rr, entry_date=entry_date, growth=growth, total_setups=total_setups,
-                           year=year, month=month, month_name=month_name, period_list=period_list, now=datetime.now())
+                           rr=rr, entry_date=entry_date, growth=growth, symbol=symbol, total_setups=total_setups,
+                           year=year, month=month, month_name=month_name, period_list=period_list,
+                           now=datetime.now(), sort=sort, dir=direction, sort_direction_symbol=sort_direction_symbol)
 
 
 @app.route('/futures/')

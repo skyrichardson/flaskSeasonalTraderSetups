@@ -9,9 +9,9 @@
         <tr>
             {% for col in header %}
                 <th scope="col">
-                    <a href="{{ url_for('futures_setups_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, symbol=symbol, sort=col[1], dir=dir) }}"
+                    <a href="{{ url_for('trades_view', year=year, month=month, trades=trades, rr=rr, entry_date=entry_date, symbol=symbol, sort=col[1], dir=dir) }}"
                        class="link-body-emphasis link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">
-                        {{ col[0][0] }}
+                        {{ col[0] }}
                         {% if sort == col[1] %}
                             {{ sort_direction_symbol }}
                         {% endif %}
@@ -41,10 +41,11 @@
                     {{ row[28] }} on {{ row[26] }} {% if row[28] == 'time_stop' %}{{ row[30] }}%{% endif %}</td>
                 <td>
                     <a href="https://seasonaltrader.com/host/History/Stocks.aspx?trade={{ row[19] }}&service_id=3"
-                       target="_blank" class="text-decoration-none">{{ row[19] }} <i
-                            class="bi bi-box-arrow-up-right"></i></a>
+                       target="_blank" class="link-body-emphasis link-offset-2 link-underline-opacity-0 link-underline-opacity-75-hover">
+                        {{ row[19] }}
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
                 </td>
-
             <tr>
         {% endfor %}
         </tbody>
