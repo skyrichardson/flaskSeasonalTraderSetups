@@ -35,7 +35,7 @@
             {% if request.path.split('/')[1] == 'stocks' %}
                 <div class="col-sm">
                     <input type="text" name="symbol" value="{{ symbol }}" class="form-control"
-                           placeholder="Symbol" aria-label="Symbol">
+                           placeholder="Symbol" aria-label="Symbol" autocomplete="off">
                 </div>
                 <div class="col-sm">
                     <select class="form-select" name="trades" aria-label="Trades">
@@ -52,6 +52,11 @@
                             25 trades or more
                         </option>
                     </select>
+                </div>
+            {% elif request.path.split('/')[1] == 'futures' %}
+                <div class="col-sm">
+                    <input type="text" name="commodity_name" value="{{ commodity_name }}" class="form-control"
+                           placeholder="Name" aria-label="Commodity Name" autocomplete="off">
                 </div>
             {% endif %}
             <div class="col-sm">
@@ -72,7 +77,7 @@
             </div>
             <div class="col-sm">
                 <input type="text" name="entry_date" value="{{ entry_date }}" class="form-control"
-                       placeholder="Entry date" aria-label="Entry Date">
+                       placeholder="Entry date" aria-label="Entry Date" autocomplete="off">
             </div>
             <div class="col-sm">
                 <select class="form-select" name="growth" aria-label="Growth">

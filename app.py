@@ -55,7 +55,7 @@ def setups_view(year, month):
             if growth:
                 data = [row for row in data if row[16] == growth]
             if symbol:
-                data = [row for row in data if row[1] == symbol]
+                data = [row for row in data if symbol in row[1]]
             reverse = direction == 'desc'
             sorted_data = sorted(data, key=lambda row: row[sort], reverse=reverse)
     except FileNotFoundError:
@@ -155,6 +155,8 @@ def futures_setups_view(year, month):
     rr = request.args.get('rr', '0.1')
     entry_date = request.args.get('entry_date', '')
     growth = request.args.get('growth', '')
+    commodity_name = request.args.get('commodity_name', '')
+    print(commodity_name)
     sort = request.args.get('sort', 0, type=int)
     direction = request.args.get('dir', 'asc')
     column_header = [['Name', 0], ['Month', 1], ['Win %', 7], ['Avg Win %', 10], ['Avg Loss %', 11],
@@ -171,6 +173,8 @@ def futures_setups_view(year, month):
                 data = [row for row in data if row[3] == entry_date]
             if growth:
                 data = [row for row in data if row[15] == growth]
+            if commodity_name:
+                data = [row for row in data if commodity_name in row[0]]
             reverse = direction == 'desc'
             sorted_data = sorted(data, key=lambda row: row[sort], reverse=reverse)
     except FileNotFoundError:
@@ -193,7 +197,7 @@ def futures_setups_view(year, month):
 
     return render_template('setups_futures.html', data=sorted_data,
                            period=period, header=column_header, trades=trade_history_min,
-                           rr=rr, entry_date=entry_date, growth=growth, total_setups=total_setups,
+                           rr=rr, entry_date=entry_date, growth=growth, commodity_name=commodity_name, total_setups=total_setups,
                            year=year, month=month, period_list=period_list, month_name=month_name,
                            now=datetime.now(), sort=sort, dir=direction, sort_direction_symbol=sort_direction_symbol)
 
