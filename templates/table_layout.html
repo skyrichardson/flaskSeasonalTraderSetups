@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <!-- Month dropdown -->
     <div class="dropdown my-2">
         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             {{ month_name }} {{ year }}
@@ -27,9 +28,10 @@
                     </a>
                 </li>
             {% endfor %}
-            {#            <li><a class="dropdown-item" href="#">Action</a></li>#}
+{#            <li><a class="dropdown-item" href="#">Action</a></li>#}
         </ul>
     </div>
+    <!-- Filters -->
     <form method="GET" action="">
         <div class="row g-3 !my-1">
             {% if request.path.split('/')[1] == 'stocks' %}
@@ -101,7 +103,7 @@
             </div>
         </div>
     </form>
-
+    <!-- tabs -->
     <nav class="nav nav-underline mb-2">
         {% if request.path.split('/')[1] == 'stocks' %}
             {% if request.path.split('/')[-1] == 'trades' %}
@@ -219,5 +221,9 @@
                 console.error('Failed to copy:', err);
             });
         }
+    </script>
+    <script>
+        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+        const popoverList = [...popoverTriggerList].map(el => new bootstrap.Popover(el))
     </script>
 {% endblock %}
