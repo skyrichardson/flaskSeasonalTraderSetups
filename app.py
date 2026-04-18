@@ -191,7 +191,7 @@ def futures_setups_view(year, month):
     print(commodity_name)
     sort = request.args.get('sort', 0, type=int)
     direction = request.args.get('dir', 'asc')
-    column_header = [['Name', 0], ['Month', 1], ['Win %', 7], ['Avg Win %', 10], ['Avg Loss %', 11],
+    column_header = [['Name', 0], ['Month', 1], ['Win %', 7], ['Avg Win %', 10], ['Avg Loss %', 11], ['Trades', 0],
                      ['Entry', 3], ['Exit', 4], ['Stop', 5], ['P/L Ratio', 6], ['Growth', 15], ['ID', 18]]
     try:
         with open(f'data/{period}_futures_trades.csv', 'r') as f:
