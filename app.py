@@ -21,7 +21,7 @@ except FileNotFoundError:
 def load_and_filter_setups(period, trade_history_min, rr, entry_date, growth, symbol):
     """Load and filter the setups CSV, returning an empty list if not found."""
     try:
-        with open(f'data/{period}_long_mature_setups.csv', 'r') as f:
+        with open(f'data/{period}_long_mature_trades.csv', 'r') as f:
             data = list(csv.reader(f))
         data = [row for row in data if int(row[20]) >= int(trade_history_min)]
         data = [row for row in data if float(row[10]) >= (3 * float(rr))]
@@ -142,7 +142,7 @@ def trades_view(year, month):
                                                ('trade_history_min', 'rr', 'entry_date', 'growth', 'symbol')})
     setups = get_earnings_report_dates(period, setups)
     try:
-        with open(f'data/{period}_long_mature_trades.csv', newline='') as f:
+        with open(f'data/{period}_results.csv', newline='') as f:
             trades = list(csv.reader(f))
     except FileNotFoundError:
         trades = []
@@ -194,7 +194,7 @@ def futures_setups_view(year, month):
     column_header = [['Name', 0], ['Month', 1], ['Win %', 7], ['Avg Win %', 10], ['Avg Loss %', 11],
                      ['Entry', 3], ['Exit', 4], ['Stop', 5], ['P/L Ratio', 6], ['Growth', 15], ['ID', 18]]
     try:
-        with open(f'data/{period}_commodity_trades.csv', 'r') as f:
+        with open(f'data/{period}_futures_trades.csv', 'r') as f:
             reader = csv.reader(f)
             next(reader)  # Skip header row
             data = list(reader)
