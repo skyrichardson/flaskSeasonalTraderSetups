@@ -18,10 +18,10 @@ except FileNotFoundError:
     months = []
 
 
-def load_and_filter_setups(period, trade_history_min, rr, entry_date, growth, symbol):
+def load_and_filter_setups(filename, trade_history_min, rr, entry_date, growth, symbol):
     """Load and filter the setups CSV, returning an empty list if not found."""
     try:
-        with open(f'data/{period}_long_mature_trades.csv', 'r') as f:
+        with open(filename, 'r') as f:
             data = list(csv.reader(f))
         data = [row for row in data if int(row[20]) >= int(trade_history_min)]
         data = [row for row in data if float(row[10]) >= (3 * float(rr))]
@@ -99,16 +99,51 @@ def stocks_index():
     return redirect(url_for('setups_view', year=now.year, month=now.month))
 
 
+@app.route('/dev/<int:year>')
+def setups_year_view(year):
+    period = f'{year}_01'
+    total_setups = ['foo', 999999]
+    month = 4
+    args = get_common_args()
+    filename = f'data/{year}_long_mature_trades_80.csv'
+
+    column_header = [['Symbol', 1], ['Win %', 7], ['Avg Win %', 10], ['Avg Loss %', 11], ['Trades', 20],
+                     ['Entry', 3], ['Exit', 4], ['Stop', 5], ['P/L Ratio', 6], ['Growth', 16], ['ID', 19]]
+
+    data = load_and_filter_setups(filename, **{k: args[k] for k in
+                                             ('trade_history_min', 'rr', 'entry_date', 'growth', 'symbol')})
+    # Float-cast Win % column for correct sorting
+    data = [[float(v) if i == 7 else v for i, v in enumerate(row)] for row in data]
+
+    reverse = args['direction'] == 'desc'
+    sorted_data = sorted(data, key=lambda row: row[args['sort']], reverse=reverse)
+    sort_direction_symbol, next_direction = resolve_sort_direction(args['direction'])
+    sorted_data = get_earnings_report_dates(period, sorted_data)
+    symbol_list = get_symbol_list(sorted_data)
+
+    return render_template('setups_year.html', data=sorted_data,
+                           period=period, header=column_header,
+                           trades=args['trade_history_min'], rr=args['rr'],
+                           entry_date=args['entry_date'], growth=args['growth'], symbol=args['symbol'],
+                           total_setups=total_setups,
+                           year=year, month=4,
+                           period_list=period_list, month_name='Dev',
+                           now=datetime.now(), sort=args['sort'],
+                           dir=next_direction, sort_direction_symbol=sort_direction_symbol, symbol_list=symbol_list
+                            )
+
+
 @app.route('/stocks/<int:year>/<int:month>/setups')
 def setups_view(year, month):
     period = f'{year}_{month:02d}'
     month_name = datetime.strptime(str(month), '%m').strftime('%B')
     args = get_common_args()
+    filename = f'data/{period}_long_mature_trades.csv'
 
     column_header = [['Symbol', 1], ['Win %', 7], ['Avg Win %', 10], ['Avg Loss %', 11], ['Trades', 20],
                      ['Entry', 3], ['Exit', 4], ['Stop', 5], ['P/L Ratio', 6], ['Growth', 16], ['ID', 19]]
 
-    data = load_and_filter_setups(period, **{k: args[k] for k in
+    data = load_and_filter_setups(filename, **{k: args[k] for k in
                                              ('trade_history_min', 'rr', 'entry_date', 'growth', 'symbol')})
     # Float-cast Win % column for correct sorting
     data = [[float(v) if i == 7 else v for i, v in enumerate(row)] for row in data]
@@ -134,11 +169,12 @@ def trades_view(year, month):
     period = f'{year}_{month:02d}'
     month_name = datetime.strptime(str(month), '%m').strftime('%B')
     args = get_common_args()
+    filename = f'data/{period}_long_mature_trades.csv'
 
     column_header = [['Symbol', 1], ['Win %', 7], ['Avg Win %', 10], ['Avg Loss %', 11], ['Trades', 20],
                      ['Growth', 16], ['Entry', 3], ['Exit', 27], ['ID', 19]]
 
-    setups = load_and_filter_setups(period, **{k: args[k] for k in
+    setups = load_and_filter_setups(filename, **{k: args[k] for k in
                                                ('trade_history_min', 'rr', 'entry_date', 'growth', 'symbol')})
     setups = get_earnings_report_dates(period, setups)
     try:

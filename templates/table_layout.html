@@ -19,11 +19,13 @@
                 {% else %}
                     {% set view_name = 'futures_setups_view' %}
                 {% endif %}
+            {% elif request.path.split('/')[1] == 'dev' %}
+                {% set view_name = 'setups_year_view' %}
             {% endif %}
             {% for p in period_list %}
                 <li>
                     <a class="dropdown-item"
-                       href="{{ url_for(view_name, year=p.year, month=p.month, trades=trades, rr=rr, entry_date=entry_date) }}">
+                       href="{{ url_for(view_name, year=p.year, month=p.month, trades=trades, rr=rr, entry_date=entry_date)}}">
                         {{ p.strftime('%B') }} {{ p.year }}
                     </a>
                 </li>
