@@ -2,7 +2,11 @@
 
 {% block content %}
     <!-- Month dropdown -->
-    <div class="dropdown my-2">
+    {% if request.path.split('/')[1] == 'dev' %}
+        <h4 class="mt-2">Dev (Jan to Jun) <span
+                        class="badge rounded-pill text-bg-secondary">{% block dev %}{% endblock %}</span></h4>
+    {% else %}
+        <div class="dropdown my-2">
         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             {{ month_name }} {{ year }}
         </button>
@@ -33,6 +37,7 @@
 {#            <li><a class="dropdown-item" href="#">Action</a></li>#}
         </ul>
     </div>
+    {% endif %}
     <!-- Filters -->
     <form method="GET" action="">
         <div class="row g-3 !my-1">
