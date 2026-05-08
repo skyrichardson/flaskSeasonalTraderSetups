@@ -220,6 +220,8 @@ def setups_year_month_day_view(year, month, day):
     # Build a deduplicated dict keyed by contract_symbol
     grouped = {}
     for row in results:
+        if 'error' in row:
+            continue  # skip failed lookups
         cs = row['contract_symbol']
         if cs not in grouped:
             grouped[cs] = {
@@ -227,6 +229,7 @@ def setups_year_month_day_view(year, month, day):
                 'option_data': row,
                 'sorted_data_rows': []
             }
+            
     # Attach the sorted_data rows that reference each contract
     for sd in sorted_data:
         cs = sd[-1]
