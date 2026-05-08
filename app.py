@@ -213,8 +213,13 @@ def setups_year_month_day_view(year, month, day):
             result = get_otm_call(row[1], exit_date)
             results.append(result)
             row.append(result['contract_symbol'])
+        # except Exception as e:
+        #     print(f"  ERROR for {row[1]} {row[0]}: {e}")
+        #     results.append({"symbol": row[1], "error": str(e)})
         except Exception as e:
-            print(f"  ERROR for {row[1]} {row[0]}: {e}")
+            import traceback
+            print(f"  ERROR for {row[1]} {row[0]}: {type(e).__name__}: {e}")
+            traceback.print_exc()
             results.append({"symbol": row[1], "error": str(e)})
 
     # Build a deduplicated dict keyed by contract_symbol
@@ -229,7 +234,7 @@ def setups_year_month_day_view(year, month, day):
                 'option_data': row,
                 'sorted_data_rows': []
             }
-            
+
     # Attach the sorted_data rows that reference each contract
     for sd in sorted_data:
         cs = sd[-1]
