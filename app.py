@@ -1,7 +1,9 @@
-from datetime import datetime
+from datetime import datetime, date
 
 from flask import Flask, render_template, request, url_for, redirect
 import csv
+import yfinance as yf
+import pandas as pd
 
 app = Flask(__name__)
 
@@ -87,6 +89,48 @@ def get_symbol_list(data):
     return sorted(set(symbol_list))
 
 
+def get_otm_call(symbol: str, target_date: date) -> dict:
+    ticker = yf.Ticker(symbol)
+
+    # 1. Get current price
+    price = ticker.fast_info.last_price
+    print(f"\n{symbol} current price: {price:.2f}")
+
+    # 2. Find first expiry on or after target date
+    expiries = ticker.options
+    expiry_str = next(
+        exp
+        for exp in expiries
+        if datetime.strptime(exp, "%Y-%m-%d").date() >= target_date
+    )
+    print(f"  Selected expiry : {expiry_str}")
+
+    # 3. Fetch calls and find nearest OTM strike
+    calls = ticker.option_chain(expiry_str).calls
+    otm_calls = calls[calls["strike"] > price].sort_values("strike")
+    if otm_calls.empty:
+        raise ValueError(f"No OTM calls found for {symbol} at expiry {expiry_str}")
+
+    otm_call = otm_calls.iloc[0]
+    strike = otm_call["strike"]
+    print(f"  Selected strike : {strike}")
+
+    return {
+        "symbol":           symbol,
+        "current_price":    round(price, 2),
+        "expiry":           expiry_str,
+        "strike":           strike,
+        "contract_symbol":  otm_call.get("contractSymbol", "N/A"),
+        "bid":              otm_call.get("bid"),
+        "ask":              otm_call.get("ask"),
+        "last_price":       otm_call.get("lastPrice"),
+        "volume":           otm_call.get("volume"),
+        "open_interest":    otm_call.get("openInterest"),
+        "implied_vol":      round(otm_call.get("impliedVolatility", float("nan")), 4),
+        "in_the_money":     otm_call.get("inTheMoney"),
+    }
+
+
 @app.route('/')
 def index():
     now = datetime.now()
@@ -131,6 +175,78 @@ def setups_year_view(year):
                            now=datetime.now(), sort=args['sort'],
                            dir=next_direction, sort_direction_symbol=sort_direction_symbol, symbol_list=symbol_list
                             )
+
+
+@app.route('/dev/options/<int:year>/<int:month>/<int:day>')
+def setups_year_month_day_view(year, month, day):
+    period = f'{year}_01'
+    total_setups = ['foo', 999999]
+    # month = 4
+    args = get_common_args()
+    filename = f'data/{year}_long_mature_trades_80.csv'
+
+    column_header = [['Win %', 7], ['Avg Win %', 10], ['Avg Loss %', 11], ['Trades', 20],
+                     ['Entry', 3], ['Exit', 4], ['Stop', 5], ['P/L Ratio', 6], ['Growth', 16], ['ID', 19]]
+
+    data = load_and_filter_setups(filename, **{k: args[k] for k in
+                                               ('trade_history_min', 'rr', 'entry_date', 'growth', 'symbol')})
+    # Float-cast Win % column for correct sorting
+    data = [[float(v) if i == 7 else v for i, v in enumerate(row)] for row in data]
+
+    reverse = args['direction'] == 'desc'
+    sorted_data = sorted(data, key=lambda row: row[args['sort']], reverse=reverse)
+    sort_direction_symbol, next_direction = resolve_sort_direction(args['direction'])
+    sorted_data = get_earnings_report_dates(period, sorted_data)
+    sorted_data = [row for row in sorted_data if row[3] == f'{month}/{day}']
+    symbol_list = get_symbol_list(sorted_data)
+
+    # setups_list = []
+    # for row in sorted_data:
+    #     exit_date = datetime.strptime(f'2026/{row[4]}', '%Y/%m/%d').date()
+    #     setups_list.append([row[19], row[1], exit_date])
+    # print(setups_list)
+
+    results = []
+    for row in sorted_data:
+        try:
+            exit_date = datetime.strptime(f'2026/{row[4]}', '%Y/%m/%d').date()
+            result = get_otm_call(row[1], exit_date)
+            results.append(result)
+            row.append(result['contract_symbol'])
+        except Exception as e:
+            print(f"  ERROR for {row[1]} {row[0]}: {e}")
+            results.append({"symbol": row[1], "error": str(e)})
+
+    # Build a deduplicated dict keyed by contract_symbol
+    grouped = {}
+    for row in results:
+        cs = row['contract_symbol']
+        if cs not in grouped:
+            grouped[cs] = {
+                'contract_symbol': cs,
+                'option_data': row,
+                'sorted_data_rows': []
+            }
+    # Attach the sorted_data rows that reference each contract
+    for sd in sorted_data:
+        cs = sd[-1]
+        if cs in grouped:
+            grouped[cs]['sorted_data_rows'].append(sd)
+
+    # Convert to list if needed downstream
+    results_grouped_by_option_contract = list(grouped.values())
+
+    return render_template('setups_with_options.html', data=results_grouped_by_option_contract,
+                           period=period, header=column_header,
+                           trades=args['trade_history_min'], rr=args['rr'],
+                           entry_date=args['entry_date'], growth=args['growth'], symbol=args['symbol'],
+                           total_setups=total_setups,
+                           year=year, month=4,
+                           period_list=period_list, month_name='Dev',
+                           now=datetime.now(), sort=args['sort'],
+                           dir=next_direction, sort_direction_symbol=sort_direction_symbol, symbol_list=symbol_list
+                           )
+
 
 
 @app.route('/stocks/<int:year>/<int:month>/setups')

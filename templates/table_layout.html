@@ -3,8 +3,13 @@
 {% block content %}
     <!-- Month dropdown -->
     {% if request.path.split('/')[1] == 'dev' %}
-        <h4 class="mt-2">Dev (Jan to Jun) <span
+        {% if request.path.split('/')[2] == 'options' %}
+            <h4 class="mt-2">Options (dev)</h4>
+        {%  else %}
+
+            <h4 class="mt-2">Dev (January to July) <span
                         class="badge rounded-pill text-bg-secondary">{% block dev %}{% endblock %}</span></h4>
+        {% endif %}
     {% else %}
         <div class="dropdown my-2">
         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -39,6 +44,7 @@
     </div>
     {% endif %}
     <!-- Filters -->
+    {% if not request.path.split('/')[2] == 'options' %}
     <form method="GET" action="">
         <div class="row g-3 !my-1">
             {% if request.path.split('/')[1] == 'stocks' %}
@@ -110,6 +116,7 @@
             </div>
         </div>
     </form>
+    {% endif %}
     <!-- tabs -->
     <nav class="nav nav-underline mb-2">
         {% if request.path.split('/')[1] == 'stocks' %}
