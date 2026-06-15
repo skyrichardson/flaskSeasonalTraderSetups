@@ -23,13 +23,31 @@
         <tbody>
         {% for row in data %}
             <tr>
-                <th scope="row">{{ row[1] }} {% if row[21] %}
-                    <i class="bi bi-megaphone ms-1"
-                       data-bs-toggle="tooltip"
-                       data-bs-placement="right"
-                       data-bs-html="true"
-                       data-bs-title="Earnings report on {{ row[21] }}"
-                    ></i>{% endif %}
+                <th scope="row">{{ row[1] }}
+                    <small>
+                        {{ row[22][0] }} {{ row[22][2] }}
+                        <span class="badge rounded-pill text-bg-primary"
+                              data-bs-toggle="tooltip"
+                               data-bs-placement="right"
+                               data-bs-html="true"
+                               data-bs-title="cRSI period"
+                        >{{ row[22][3] }}</span>
+                        {% if row[22][4] == 'Divergence' %}
+                            <span class="badge rounded-pill text-bg-secondary"
+                                data-bs-toggle="tooltip"
+                               data-bs-placement="right"
+                               data-bs-html="true"
+                               data-bs-title="Divergence"
+                            >D</span>
+                        {% endif %}
+                        {% if row[21] %}
+                        <i class="bi bi-megaphone ms-1"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="right"
+                           data-bs-html="true"
+                           data-bs-title="Earnings report on {{ row[21] }}"
+                        ></i>{% endif %}
+                    </small>
                 </th>
                 <td>{{ row[7]|int }}%</td>
                 <td>{% if row[10]|float >= 6 %}

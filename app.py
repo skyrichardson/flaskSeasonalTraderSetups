@@ -89,6 +89,22 @@ def get_symbol_list(data):
     return sorted(set(symbol_list))
 
 
+def get_cycle_consensus_index_list(data):
+    try:
+        with open(f'data/cycles_consensus_index.csv', 'r') as f:
+            reader = csv.reader(f)
+            consensus_data = list(reader)
+    except FileNotFoundError:
+        consensus_data = []
+    for row in data:
+        row.append('')
+    for row in data:
+        for r in consensus_data:
+            if row[1] == r[0]:
+                row[22] = r[1:]
+    return data
+
+
 def get_otm_call(symbol: str, target_date: date) -> dict:
     ticker = yf.Ticker(symbol)
 
@@ -272,6 +288,7 @@ def setups_view(year, month):
     sort_direction_symbol, next_direction = resolve_sort_direction(args['direction'])
     sorted_data = get_earnings_report_dates(period, sorted_data)
     symbol_list = get_symbol_list(sorted_data)
+    cycle_consensus = get_cycle_consensus_index_list(data)
 
     return render_template('setups.html', data=sorted_data,
                            period=period, header=column_header,
