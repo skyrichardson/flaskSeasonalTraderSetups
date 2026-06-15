@@ -4,16 +4,15 @@
 {% block total_setups %}{{ total_setups[0][0] }}{% endblock %}
 
 {% block results %}
-  <p class="text-muted small mb-3">Click a stock to resolve its exchange and open the chart.</p>
-
-  <div class="d-flex flex-wrap gap-2" id="outer-btns">
-    <button class="btn btn-outline-primary stock-btn" data-ticker="AAPL">🍎 AAPL</button>
-    <button class="btn btn-outline-primary stock-btn" data-ticker="NVDA">🟢 NVDA</button>
-    <button class="btn btn-outline-primary stock-btn" data-ticker="GOOG">🔵 GOOG</button>
-    <button class="btn btn-outline-primary stock-btn" data-ticker="MSFT">🪟 MSFT</button>
-    <button class="btn btn-outline-primary stock-btn" data-ticker="META">📘 META</button>
-    <button class="btn btn-outline-primary stock-btn" data-ticker="AMZN">📦 AMZN</button>
-    <button class="btn btn-outline-primary stock-btn" data-ticker="TSLA">⚡ TSLA</button>
+<!-- Stock buttons -->
+  <div class="d-flex flex-wrap gap-2">
+    <button class="btn btn-outline-primary stock-btn" data-symbol="NASDAQ:AAPL">🍎 AAPL</button>
+    <button class="btn btn-outline-primary stock-btn" data-symbol="NASDAQ:NVDA">🟢 NVDA</button>
+    <button class="btn btn-outline-primary stock-btn" data-symbol="NASDAQ:GOOG">🔵 GOOG</button>
+    <button class="btn btn-outline-primary stock-btn" data-symbol="NASDAQ:MSFT">🪟 MSFT</button>
+    <button class="btn btn-outline-primary stock-btn" data-symbol="NASDAQ:META">📘 META</button>
+    <button class="btn btn-outline-primary stock-btn" data-symbol="NASDAQ:AMZN">📦 AMZN</button>
+    <button class="btn btn-outline-primary stock-btn" data-symbol="NASDAQ:TSLA">⚡ TSLA</button>
   </div>
 
     <table class="table table-sm !table-striped !table-hover fs-xs">
@@ -118,7 +117,7 @@
         </tbody>
     </table>
 
-  <!-- Modal -->
+<!-- Modal -->
   <div class="modal fade" id="chartModal" tabindex="-1" aria-labelledby="chartModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
       <div class="modal-content">
@@ -129,26 +128,19 @@
         </div>
 
         <div class="modal-body p-0">
-          <!-- Loading state -->
-          <div id="chart-loading" style="height:500px;display:flex;align-items:center;justify-content:center;background:#0d0e11;display:none;">
-            <div class="text-center text-white-50">
-              <div class="spinner-border mb-3" role="status"></div>
-              <div id="loading-text" style="font-size:13px;">Resolving symbol...</div>
-            </div>
-          </div>
-          <!-- Chart container -->
-          <div id="tradingview-chart" style="height:500px;"></div>
+          <div id="tradingview-chart" style="height: 500px;"></div>
         </div>
 
         <div class="modal-footer">
-          <div class="d-flex flex-wrap gap-2 me-auto" id="modal-btns">
-            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-ticker="AAPL">AAPL</button>
-            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-ticker="NVDA">NVDA</button>
-            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-ticker="GOOG">GOOG</button>
-            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-ticker="MSFT">MSFT</button>
-            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-ticker="META">META</button>
-            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-ticker="AMZN">AMZN</button>
-            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-ticker="TSLA">TSLA</button>
+          <!-- Symbol switcher inside modal -->
+          <div class="d-flex flex-wrap gap-2 me-auto">
+            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-symbol="NASDAQ:AAPL">AAPL</button>
+            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-symbol="NASDAQ:NVDA">NVDA</button>
+            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-symbol="NASDAQ:GOOG">GOOG</button>
+            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-symbol="NASDAQ:MSFT">MSFT</button>
+            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-symbol="NASDAQ:META">META</button>
+            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-symbol="NASDAQ:AMZN">AMZN</button>
+            <button class="btn btn-sm btn-outline-secondary modal-symbol-btn" data-symbol="NASDAQ:TSLA">TSLA</button>
           </div>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
@@ -161,118 +153,63 @@
       <!-- TradingView widget script -->
   <script src="https://s3.tradingview.com/tv.js"></script>
 
-    <script>
+  <script>
     let tvWidget = null;
     let currentSymbol = null;
-    const symbolCache = {};  // cache resolved symbols e.g. { AAPL: 'NASDAQ:AAPL' }
-
     const modal = new bootstrap.Modal(document.getElementById('chartModal'));
-    const chartModalEl = document.getElementById('chartModal');
     const modalLabel = document.getElementById('chartModalLabel');
-    const chartLoading = document.getElementById('chart-loading');
-    const chartContainer = document.getElementById('tradingview-chart');
-    const loadingText = document.getElementById('loading-text');
+    const chartModal = document.getElementById('chartModal');
 
-async function resolveSymbol(ticker) {
-  if (symbolCache[ticker]) return symbolCache[ticker];
-
-  const res = await fetch(`/api/symbol-search?ticker=${ticker}`);
-  const data = await res.json();
-
-  if (!Array.isArray(data) || data.length === 0) {
-    throw new Error(`No results for ${ticker}`);
-  }
-
-  const match = data.find(s =>
-    s.symbol.toUpperCase() === ticker.toUpperCase() && s.type === 'stock'
-  ) || data[0];
-
-  if (!match) throw new Error(`No match found for ${ticker}`);
-
-  const fullSymbol = `${match.exchange}:${match.symbol}`;
-  symbolCache[ticker] = fullSymbol;
-  return fullSymbol;
-}
-
-    function setLoading(isLoading, message = 'Resolving symbol...') {
-      loadingText.textContent = message;
-      chartLoading.style.display = isLoading ? 'flex' : 'none';
-      chartContainer.style.display = isLoading ? 'none' : 'block';
+    function setActiveSymbolBtn(symbol, scope) {
+      scope.querySelectorAll('[data-symbol]').forEach(b => b.classList.remove('active'));
+      const active = scope.querySelector(`[data-symbol="${symbol}"]`);
+      if (active) active.classList.add('active');
     }
 
-    function setActiveBtn(ticker) {
-      document.querySelectorAll('[data-ticker]').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll(`[data-ticker="${ticker}"]`).forEach(b => b.classList.add('active'));
-    }
+    function loadChart(symbol) {
+      const ticker = symbol.split(':')[1];
+      modalLabel.textContent = `${ticker} · Advanced Chart`;
+      setActiveSymbolBtn(symbol, document.body);
+      setActiveSymbolBtn(symbol, chartModal);
 
-    function setButtonsResolving(isResolving) {
-      document.querySelectorAll('[data-ticker]').forEach(b => {
-        b.classList.toggle('btn-resolving', isResolving);
-      });
-    }
-
-    async function loadChart(ticker) {
-      setActiveBtn(ticker);
-      setButtonsResolving(true);
-      setLoading(true, `Resolving ${ticker}...`);
-
-      try {
-        const fullSymbol = await resolveSymbol(ticker);
-        const [exchange, symbol] = fullSymbol.split(':');
-
-        modalLabel.textContent = `${symbol} · ${exchange} · Advanced Chart`;
-        setLoading(false);
-
-        if (tvWidget && currentSymbol !== null) {
-          tvWidget.setSymbol(fullSymbol, 'D', () => {});
-          currentSymbol = fullSymbol;
-        } else {
-          const width = chartContainer.offsetWidth;
-          tvWidget = new TradingView.widget({
-            container_id: 'tradingview-chart',
-            width: width,
-            height: 500,
-            symbol: fullSymbol,
-            interval: 'D',
-            timezone: 'Etc/UTC',
-            theme: 'dark',
-            style: '1',
-            locale: 'en',
-            enable_publishing: false,
-            studies: ['RSI@tv-basicstudies', 'MACD@tv-basicstudies'],
-          });
-          currentSymbol = fullSymbol;
-        }
-      } catch (err) {
-        setLoading(true, `⚠️ Could not resolve ${ticker}. Try again.`);
-        console.error(err);
-      } finally {
-        setButtonsResolving(false);
+      if (tvWidget && currentSymbol !== null) {
+        // Widget already exists — just switch symbol
+        tvWidget.setSymbol(symbol, 'D', () => {});
+        currentSymbol = symbol;
+        return;
       }
+
+      // First load — create widget
+      const container = document.getElementById('tradingview-chart');
+      tvWidget = new TradingView.widget({
+        container_id: 'tradingview-chart',
+        width: container.offsetWidth,
+        height: 500,
+        symbol: symbol,
+        interval: 'D',
+        timezone: 'Etc/UTC',
+        theme: 'dark',
+        style: '1',
+        locale: 'en',
+        enable_publishing: false,
+        studies: ['RSI@tv-basicstudies', 'MACD@tv-basicstudies'],
+      });
+
+      currentSymbol = symbol;
     }
 
-    // Outside buttons — open modal then load
+    // Outside buttons — open modal then load chart
     document.querySelectorAll('.stock-btn').forEach(btn => {
       btn.addEventListener('click', () => {
+        const symbol = btn.dataset.symbol;
         modal.show();
-        chartModalEl.addEventListener('shown.bs.modal', () => {
-          loadChart(btn.dataset.ticker);
-        }, { once: true });
+        chartModal.addEventListener('shown.bs.modal', () => loadChart(symbol), { once: true });
       });
     });
 
-    // Inside modal buttons — switch symbol
+    // Inside modal buttons — switch symbol without reopening
     document.querySelectorAll('.modal-symbol-btn').forEach(btn => {
-      btn.addEventListener('click', () => loadChart(btn.dataset.ticker));
-    });
-
-    // Reset widget when modal closes
-    chartModalEl.addEventListener('hidden.bs.modal', () => {
-      tvWidget = null;
-      currentSymbol = null;
-      chartContainer.innerHTML = '';
-      setLoading(false);
-      document.querySelectorAll('[data-ticker]').forEach(b => b.classList.remove('active'));
+      btn.addEventListener('click', () => loadChart(btn.dataset.symbol));
     });
   </script>
 {% endblock %}

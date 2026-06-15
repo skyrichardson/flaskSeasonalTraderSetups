@@ -1,10 +1,9 @@
 from datetime import datetime, date
 
-from flask import Flask, render_template, request, url_for, redirect, jsonify
+from flask import Flask, render_template, request, url_for, redirect
 import csv
 import yfinance as yf
 import pandas as pd
-import requests
 
 app = Flask(__name__)
 
@@ -104,28 +103,6 @@ def get_cycle_consensus_index_list(data):
             if row[1] == r[0]:
                 row[22] = r[1:]
     return data
-
-
-@app.route('/api/symbol-search')
-def symbol_search():
-    ticker = request.args.get('ticker', '')
-    url = f'https://symbol-search.tradingview.com/symbol_search/?text={ticker}&type=stock'
-
-    try:
-        r = requests.get(url, headers={
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Accept': 'application/json',
-            'Referer': 'https://www.tradingview.com/',
-            'Origin': 'https://www.tradingview.com'
-        }, timeout=5)
-
-        print(f"TradingView status: {r.status_code}")
-        print(f"TradingView response: {r.text[:500]}")  # log first 500 chars
-
-        return jsonify(r.json())
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"error": str(e)}), 502
 
 
 def get_otm_call(symbol: str, target_date: date) -> dict:
