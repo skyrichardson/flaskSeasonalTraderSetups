@@ -5,6 +5,9 @@ import csv
 import yfinance as yf
 import pandas as pd
 
+from itertools import groupby
+from operator import itemgetter
+
 app = Flask(__name__)
 
 try:
@@ -56,6 +59,8 @@ def get_common_args():
         'symbol':            request.args.get('symbol', '').upper(),
         'sort':              request.args.get('sort', 0, type=int),
         'direction':         request.args.get('dir', 'asc'),
+        'up':                request.args.get('up', 0, type=int),
+        'down':              request.args.get('down', 0, type=int),
     }
 
 
@@ -251,6 +256,49 @@ def setups_year_month_day_view(year, month, day):
                            )
 
 
+@app.route('/dev/<int:year>/<int:month>/weekly-charts')
+def weekly_charts_view(year, month):
+    args = get_common_args()
+    filename = f'data/{year}_{month:02d}_weekly_arrows.csv'
+
+    with open(filename, 'r') as f:
+        reader = csv.reader(f)
+        header = next(reader)  # skip header row: ticker, week, month, year, arrow, signal, value
+        rows = list(reader)
+
+    # columns by index: 0=ticker, 1=week, 2=month, 3=year, 4=arrow, 5=signal, 6=value
+    rows.sort(key=itemgetter(0))
+    print(f"before filter: {len(set(r[0] for r in rows))} tickers")
+    kept_rows = []
+
+    if not args['down'] and not args['up']:
+        kept_rows = rows  # no filters requested — show everything
+    else:
+        for ticker, group_iter in groupby(rows, key=itemgetter(0)):
+            group = list(group_iter)
+            down_count = sum(1 for r in group if r[4] == 'down')
+            up_count = sum(1 for r in group if r[4] == 'up')
+
+            down_match = args['down'] and down_count >= args['down']
+            up_match = args['up'] and up_count >= args['up']
+
+            if down_match or up_match:
+                kept_rows.extend(group)
+
+    if args['symbol']:
+        kept_rows = [r for r in kept_rows if r[0] == args['symbol']]
+
+    if args['sort'] is not None:
+        col = args['sort'] if 0 <= args['sort'] < 7 else 0
+        kept_rows.sort(key=itemgetter(col), reverse=(args['direction'] == 'desc'))
+
+    total_setups = [[len(set(r[0] for r in kept_rows))]]
+
+    print(f"after filter: {len(set(r[0] for r in kept_rows))} tickers")
+
+    return render_template('weekly_charts.html', data=kept_rows,
+                            args=args,
+                            year=year, month=month, now=datetime.now())
 
 @app.route('/stocks/<int:year>/<int:month>/setups')
 def setups_view(year, month):
