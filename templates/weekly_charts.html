@@ -1,0 +1,38 @@
+{% extends "dev_layout.html" %}
+
+{% block dev %}{{ (data | groupby(0)) | length }}{% endblock %}
+
+{% block results %}
+    <div style="width: 20em;">
+    {% for key, items in data | groupby(0) %}
+        <div class="d-flex">
+            <div class="me-auto">{{ key }}</div>
+            <div class="px-2">
+                {% for item in items %}
+                    {% if item[4] == 'up' %}
+                        <span class="badge rounded-pill text-bg-success"><i class="bi bi-arrow-up"></i>{{ item[6] }}</span>
+                    {% elif item[4] == 'down' %}
+{#                        <i class="bi bi-arrow-down text-danger"></i>#}
+                        <span class="badge rounded-pill text-bg-danger"><i class="bi bi-arrow-down"></i>{{ item[6] }}</span>
+                    {% else %}
+                        <span class="badge rounded-pill text-bg-secondary"><i class="bi bi-dash"></i><i class="bi bi-dash"></i></span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="p-2">
+                <a tabindex="0"
+                   role="button"
+                   data-bs-toggle="popover"
+                   data-bs-trigger="focus"
+                   data-bs-html="true"
+                   data-bs-sanitize="false"
+                   data-bs-placement="auto"
+                   data-bs-template='<div class="popover" role="tooltip" style="max-width:none !important;width:800px !important;"><div class="popover-arrow"></div><h3 class="popover-header"></h3><div class="popover-body" style="width:800px !important;max-width:none !important;box-sizing:content-box !important;padding:0 !important;"></div></div>'
+                   data-bs-content='<img src="https://seasonal-trader-setups.b-cdn.net/weekly_{{ key }}_earliest-2026.png" width="800" height="600" style="display:block;width:800px !important;">'>
+                    <i class="bi bi-graph-up"></i>
+                </a>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}
